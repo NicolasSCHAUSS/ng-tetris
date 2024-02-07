@@ -190,8 +190,7 @@ export class BoardComponent implements OnInit {
     this.board.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value >  0 && this.renderContext != null) {
-          this.renderContext.fillStyle = COLORS[value-1];
-          this.renderContext.fillRect(x, y, 1, 1);
+          Piece.drawBlock(COLORS[value-1], x, y, this.renderContext);
         }
       });
     });
@@ -224,14 +223,19 @@ export class BoardComponent implements OnInit {
   }
 
   moves(p :Piece, eventKey :string): Piece {
-      let pCopy = Object.create(p);
+    let pCopy = Object.create(p);
+    //deep copy of shape
+    let oldShape = p.shape.map(y => y.map(x=>x));
 
     if(eventKey == 'ArrowLeft') 
       pCopy.x -= 1;
     else if(eventKey == 'ArrowRight')
       pCopy.x += 1;
-    else if (eventKey == 'ArrowUp')
+    else if (eventKey == 'ArrowUp'){
       pCopy.rotate();
+      if(this.valid(pCopy)===false)
+        pCopy.shape=oldShape;
+    }
     else if (eventKey == 'ArrowDown' || eventKey == ' ')
       pCopy.y += 1;
 

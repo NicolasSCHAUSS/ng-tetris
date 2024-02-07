@@ -22,9 +22,9 @@ export class Piece implements IPiece {
   }
 
   spawn() {
-    let colorId = Math.floor(Math.random()*COLORS.length);
-    console.log(colorId);
-    switch(colorId) {
+    let shape = Math.floor(Math.random()*COLORS.length);
+    let color = Math.floor(Math.random()*COLORS.length);
+    switch(shape) {
       case 0:
         this.shape = SHAPES['I'];
         break;
@@ -50,18 +50,19 @@ export class Piece implements IPiece {
         break;
     }
 
-    this.color = COLORS[colorId];
-    this.x = colorId == 3 ? 4 : 3;
-    this.y = 0; 
+    this.color = COLORS[color];
+    this.x = shape == 3 ? 4 : 3;
+    this.y = 0;
+
+    //apply random color to shape matrix
+    this.shape = this.shape.map( (row) => row.map( (cell) => cell = cell*(color+1)));
   }
 
   draw() {
-    this.renderContext.fillStyle = this.color;
-
     this.shape.forEach((row, y) => {
       row.forEach((value, x) => {
         if(value > 0)
-          this.renderContext.fillRect(this.x+x, this.y+y, 1, 1);
+          Piece.drawBlock(this.color, this.x+x, this.y+y, this.renderContext);
       });
     });
   }
@@ -74,9 +75,35 @@ export class Piece implements IPiece {
       this.shape.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value > 0)
-            renderContext.fillRect(x, y, 1, 1);
+            Piece.drawBlock(this.color, x, y, renderContext);
         });
       });
+    }
+  }
+
+  public static drawBlock(color:string, x:number, y:number, renderContext:CanvasRenderingContext2D|null) {
+    if(renderContext != null) {
+      //BLOCK
+      renderContext.fillStyle = color;
+      renderContext.fillRect(x, y, 1, 1);
+      //BLOCK FILLS
+      renderContext.fillStyle = "black";
+      renderContext.lineWidth = .1;
+      renderContext.strokeRect(x, y, 1, 1);
+
+      renderContext.beginPath();
+      renderContext.lineWidth = .05;
+      renderContext.moveTo(x, y);
+      renderContext.lineTo(x+.2,y+.2);
+      renderContext.moveTo(x+1,y);
+      renderContext.lineTo(x+.8,y+.2);
+      renderContext.moveTo(x,y+1);
+      renderContext.lineTo(x+.2,y+.8);
+      renderContext.moveTo(x+1,y+1);
+      renderContext.lineTo(x+.8,y+.8);
+      renderContext.stroke();
+    
+      renderContext.strokeRect(x+.2, y+.2, .6, .6);
     }
   }
 
